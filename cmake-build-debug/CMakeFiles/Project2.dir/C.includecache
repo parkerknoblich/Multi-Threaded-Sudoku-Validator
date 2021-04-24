@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/parker/CSS430/Project2/sudokuvalidator.c
+stdio.h
+-
+pthread.h
+-
+unistd.h
+-
+stdlib.h
+-
+
