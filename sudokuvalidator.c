@@ -50,6 +50,22 @@ void* checkRow(void* rowArgs) {
     pthread_exit(NULL);
 }
 
+void* checkSubGrid(void* subGridArgs) {
+    int allValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    for (int i = ((parameters*) subGridArgs)->row - 2; i <= ((parameters*) subGridArgs)->row; i++) {
+        for (int j = ((parameters*) subGridArgs)->column - 2; j <= ((parameters*) subGridArgs)->column; j++) {
+            int currValue = grid[i][j];
+            if (allValues[currValue] == 0) {
+                allValues[currValue] = 1;
+            } else {
+                validFlag = 0;
+                pthread_exit(NULL);
+            }
+        }
+    }
+    pthread_exit(NULL);
+}
+
 int main() {
     for (int i = 0; i <= 8; i++) {                          // create column threads
         pthread_t tid;
@@ -61,7 +77,7 @@ int main() {
         pthread_create(&tid, &attr, checkColumn, (void*) data);
         pthread_join(tid, NULL);
     }
-    for (int i = 0; i <= 8; i++) {                         // create row threads
+    for (int i = 0; i <= 8; i++) {                          // create row threads
         pthread_t tid;
         pthread_attr_t attr;
         pthread_attr_init(&attr);
@@ -71,43 +87,23 @@ int main() {
         pthread_create(&tid, &attr, checkRow, (void*) data);
         pthread_join(tid, NULL);
     }
+    for (int i = 0; i <= 8; i += 3) {                      // create subgrid threads
+        for (int j = 0; j <= 8; j += 3) {
+            pthread_t tid;
+            pthread_attr_t attr;
+            pthread_attr_init(&attr);
+            parameters* data = (parameters*)malloc(sizeof(parameters));
+            data->row = j + 2;
+            data->column = i + 2;
+            pthread_create(&tid, &attr, checkSubGrid, (void*) data);
+            pthread_join(tid, NULL);
+        }
+    }
+    printf("Sudoku Puzzle is: ");
     if (validFlag == 0) {
-        printf("NOT VALID");
+        printf("INVALID");
     } else {
         printf("VALID");
     }
+    printf("\n");
 }
-
-
-
-
-
-
-
-
-
-//void* checkColumn(void* columnArgs) {
-//    int allValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-//    printf("ALL VALUES BEFORE = ");
-//    for (int i = 0; i <= 9; i++) {
-//        printf("%d ", allValues[i]);
-//    }
-//    printf("\n");
-//    for (int i = 0; i <= ((parameters*) columnArgs)->row; i++) {
-//        int currValue = grid[i][((parameters*) columnArgs)->column];
-//        if (allValues[currValue] == 0) {
-//            printf("GOOD: Row %d Column %d\n", i, ((parameters*) columnArgs)->column);
-//            allValues[currValue] = 1;
-//        } else {
-//            printf("BAD: Row %d Column %d\n", i, ((parameters*) columnArgs)->column);
-//            validFlag = 0;
-//            pthread_exit(NULL);
-//        }
-//        printf("ALL VALUES AFTER (Row %d Column %d Value %d) = ", i, ((parameters*) columnArgs)->column, currValue);
-//        for (int j = 0; j <= 9; j++) {
-//            printf("%d ", allValues[j]);
-//        }
-//        printf("\n");
-//    }
-//    pthread_exit(NULL);
-//}
