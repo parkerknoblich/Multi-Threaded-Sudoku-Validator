@@ -3,14 +3,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-int validFlag = 1;
-
-typedef struct {
+int validFlag = 1;                     // indicates if sudoku puzzle is valid or not
+typedef struct {                       // struct that contains row and column parameters for each thread
     int row;
     int column;
 } parameters;
-
-int grid[9][9] = {
+int grid[9][9] = {                     // the sudoku puzzle to validate
         {6, 2, 4, 5, 3, 9, 1, 8, 7},
         {5, 1, 9, 7, 2, 8, 6, 3, 4},
         {8, 3, 7, 6, 1, 4, 2, 9, 5},
@@ -22,6 +20,7 @@ int grid[9][9] = {
         {2, 8, 5, 4, 7, 3, 9, 1, 6}
 };
 
+// checks a column
 void* checkColumn(void* columnArgs) {
     int allValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     for (int i = 0; i <= ((parameters*) columnArgs)->row; i++) {
@@ -29,13 +28,14 @@ void* checkColumn(void* columnArgs) {
         if (allValues[currValue] == 0) {
             allValues[currValue] = 1;
         } else {
-            validFlag = 0;
+            validFlag = 0;            // set validFlag to false if same number is seen twice
             pthread_exit(NULL);
         }
     }
     pthread_exit(NULL);
 }
 
+// checks a row
 void* checkRow(void* rowArgs) {
     int allValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     for (int i = 0; i <= ((parameters*) rowArgs)->column; i++) {
@@ -43,13 +43,14 @@ void* checkRow(void* rowArgs) {
         if (allValues[currValue] == 0) {
             allValues[currValue] = 1;
         } else {
-            validFlag = 0;
+            validFlag = 0;           // set validFlag to false if same number is seen twice
             pthread_exit(NULL);
         }
     }
     pthread_exit(NULL);
 }
 
+// checks a subgrid
 void* checkSubGrid(void* subGridArgs) {
     int allValues[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     for (int i = ((parameters*) subGridArgs)->row - 2; i <= ((parameters*) subGridArgs)->row; i++) {
@@ -58,7 +59,7 @@ void* checkSubGrid(void* subGridArgs) {
             if (allValues[currValue] == 0) {
                 allValues[currValue] = 1;
             } else {
-                validFlag = 0;
+                validFlag = 0;        // set validFlag to false if same number is seen twice
                 pthread_exit(NULL);
             }
         }
@@ -87,7 +88,7 @@ int main() {
         pthread_create(&tid, &attr, checkRow, (void*) data);
         pthread_join(tid, NULL);
     }
-    for (int i = 0; i <= 8; i += 3) {                      // create subgrid threads
+    for (int i = 0; i <= 8; i += 3) {                       // create subgrid threads
         for (int j = 0; j <= 8; j += 3) {
             pthread_t tid;
             pthread_attr_t attr;
